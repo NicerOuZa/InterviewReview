@@ -1,4 +1,4 @@
-## 1. HashMap实现
+## 1. HashMap的底层原理
 ## 2. 说一下map的分类和常见情况
    - java为数据结构中的映射定义了一个接口 java.util.Map;它有四个实现类，分别是**HashMap**、**Hashtable**、**LinkedHashMap**和**TreeMap**.
    - Map主要用于存储健值对，根据键得到值，因此不允许键重复(重复了覆盖了），但允许值重复。
