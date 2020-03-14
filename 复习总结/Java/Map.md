@@ -7,7 +7,14 @@
  - 平方取中法：取关键字平方后的中间几位为哈希地址。
  - 随机数法： 选择一个随机函数，取关键字的随机函数值为它的哈希地址。
  - 除留余数法：取关键字被某个不大于哈希表表长m的数p除后所得余数为哈希地址。
+
 ## 1. HashMap的底层原理
+- HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象。当我们将键值对传递给put()方法时，它调用键对象的hashCode()方法来计算hashcode，让后找到bucket位置来储存值对象。当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 HashMap在每个链表节点中储存键值对对象。
+- HashMap可以通过下面的语句进行同步：
+	- Map m = Collections.synchronizeMap(hashMap);
+- 结论
+Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在你需要完全的线程安全的时候使用Hashtable，而如果你使用Java 5或以上的话，请使用ConcurrentHashMap吧。
+
 ## 2. 说一下map的分类和常见情况
    - java为数据结构中的映射定义了一个接口 java.util.Map;它有四个实现类，分别是**HashMap**、**Hashtable**、**LinkedHashMap**和**TreeMap**.
    - Map主要用于存储健值对，根据键得到值，因此不允许键重复(重复了覆盖了），但允许值重复。
