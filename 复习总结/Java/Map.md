@@ -14,6 +14,15 @@
 	- Map m = Collections.synchronizeMap(hashMap);
 - 结论
 Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在你需要完全的线程安全的时候使用Hashtable，而如果你使用Java 5或以上的话，请使用ConcurrentHashMap吧。
+### JDK 7
+1. Hashmap -> 数组+链表<br />
+ - key-> key.hashcode() % 数组大小 -> 得到数组下标, 当得到的下标的数组有值了，就引入单向链表。插入到头部快。
+ - 数组中存的是Entry的引用，Entry是K-V的实体, Entry数组
+ - 线程不安全
+ - hashtable中添加了synchronized，加锁
+
+2. ConcurrentHashmap
+
 
 ## 2. 说一下map的分类和常见情况
    - java为数据结构中的映射定义了一个接口 java.util.Map;它有四个实现类，分别是**HashMap**、**Hashtable**、**LinkedHashMap**和**TreeMap**.
@@ -28,3 +37,5 @@ Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在�
 		- **Hashtable与HashMap类似**，不同的是：它不允许记录的键或者值为空；它支持线程的同步，即任一时刻只有一个线程能写Hashtable,因此也导致了 Hashtable在写入时会比较慢。
 		- **LinkedHashMap**保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的。
 		- 在遍历的时候会比HashMap慢**TreeMap**能够把它保存的记录根据键排序，默认是按升序排序，也可以指定排序的比较器。当用Iterator遍历TreeMap时，得到的记录是排过序的。
+
+## 3. 
