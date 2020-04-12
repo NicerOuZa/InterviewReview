@@ -140,3 +140,15 @@ public @interface MyAnnotation {
 - 只能使用public或defaul（默认）这两个访问权修饰。例如，String value（）;这里把方法设置defaul默认类型；　
 - 参数成员只能用基本类型，字节，短，字符，整数，长，浮点数，双精度，布尔八种基本数据类型和字符串，枚举，类，注释等数据类型，以及这一些类型的数组。例如，字符串值（）;这里的参数成员就为String;　　
 - 如果只有一个参数成员，最好把参数名称设置为“ value”，后加小括号。
+
+## 9. Spring中事务
+1. [事务传播级别7种](https://segmentfault.com/a/1190000013341344)
+2. 事务的隔离级别
+```java
+    @Transactional(isolation=Isolation.DEFAULT,propagation=Propagation.REQUIRED)
+    @Override
+    public void addAccount(String accountname, double money) {
+        accountDao.addAccount(accountname,money);
+        
+    }
+```

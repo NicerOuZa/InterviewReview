@@ -8,8 +8,13 @@
  - 随机数法： 选择一个随机函数，取关键字的随机函数值为它的哈希地址。
  - 除留余数法：取关键字被某个不大于哈希表表长m的数p除后所得余数为哈希地址。
 
-## 1. HashMap的底层原理
-- HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象。当我们将键值对传递给put()方法时，它调用键对象的hashCode()方法来计算hashcode，让后找到bucket位置来储存值对象。当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 HashMap在每个链表节点中储存键值对对象。
+## 1. HashMap和ConcurrentHashMap的底层原理
+[](https://baijiahao.baidu.com/s?id=1617089947709260129&wfr=spider&for=pc)
+- HashMap基于hashing原理，我们通过put()和get()方法储存和获取对象。当我们将键值对传递给put()方法时，
+它调用键对象的hashCode()方法来计算hashcode，让后找到bucket位置来储存值对象。
+当获取对象时，通过键对象的equals()方法找到正确的键值对，然后返回值对象。
+HashMap使用链表来解决碰撞问题，当发生碰撞了，对象将会储存在链表的下一个节点中。 
+HashMap在每个链表节点中储存键值对对象。
 - HashMap可以通过下面的语句进行同步：
 	- Map m = Collections.synchronizeMap(hashMap);
 - 结论
@@ -21,16 +26,35 @@ Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在�
  - 线程不安全
  - hashtable中添加了synchronized，加锁
 
-2. ConcurrentHashmap
+2. ConcurrentHashmap 数组+链表
+ - 数组中存的是分段锁segment,segment里面存的是hashentry(和entry一样)数组，
+每个segment继承了可重入锁ReentrantLock，也可以控制锁，几个元素可以共享一把锁。
+![](Map_files/1.jpg)
 
+### JDK 8
+1. HashMap -> 数组+链表+红黑树
+
+2. concurrentHashmap
+	- JDK8中ConcurrentHashMap参考了JDK8 HashMap的实现，采用了数组+链表+红黑树的实现方式来设计，内部大量采用CAS操作。
+	- JDK8中彻底放弃了Segment转而采用的是Node，其设计思想也不再是JDK1.7中的分段锁思想。
+	- Node：保存key，value及key的hash值的数据结构。其中value和next都用volatile修饰，保证并发的可见性。
+	- JDK8中ConcurrentHashMap在链表的长度大于某个阈值的时候会将链表转换成红黑树进一步提高其查找性能。
+	- 总结： JDK8中的实现也是锁分离的思想，它把锁分的比segment（JDK1.5）更细一些，只要hash不冲突，就不会出现并发获得锁的情况。
+	它首先使用无锁操作CAS插入头结点，如果插入失败，说明已经有别的线程插入头结点了，再次循环进行操作。如果头结点已经存在，
+	则通过synchronized获得头结点锁，进行后续的操作。性能比segment分段锁又再次提升。
 
 ## 2. 说一下map的分类和常见情况
    - java为数据结构中的映射定义了一个接口 java.util.Map;它有四个实现类，分别是**HashMap**、**Hashtable**、**LinkedHashMap**和**TreeMap**.
    - Map主要用于存储健值对，根据键得到值，因此不允许键重复(重复了覆盖了），但允许值重复。
    1. Hashmap是一个最常用的Map，它根据键的HashCode值存储数据，根据键可以直接获取它的值，具有很快的访问速度，遍历时，取得数据的顺序是完全随机的。HashMap最多只允许一条记录的键为Null;允许多条记录的值为Null;HashMap不支持线程的同步，即任一时刻可以有多个线程同时写HashMap;可能会导致数据的不一致。如果需要同步，可以用Collections的synchronizedMap方法使HashMap具有同步的能力，或者使用ConcurrentHashMap。
-   2. Hashtable与HashMap类似，它继承自Dictionary类，不同的是:它不允许记录的键或者值为空;它支持线程的同步，即任一时刻只有一个线程能写Hashtable,因此也导致了 Hashtable在写入时会比较慢。
-   3. LinkedHashMap是HashMap的一个子类，保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的.也可以在构造时用带参数，按照应用次数排序。在遍历的时候会比HashMap慢，不过有种情况例外，当HashMap容量很大，实际数据较少时，遍历起来可能会比LinkedHashMap慢，因为LinkedHashMap的遍历速度只和实际数据有关，和容量无关，而HashMap的遍历速度和他的容量有关。
-   4. TreeMap实现SortMap接口，能够把它保存的记录根据键排序,默认是按键值的升序排序，也可以指定排序的比较器，当用Iterator遍历TreeMap时，得到的记录是排过序的。
+   2. Hashtable与HashMap类似，它继承自Dictionary类，不同的是:它不允许记录的键或者值为空;它支持线程的同步，即任一时刻
+   只有一个线程能写Hashtable,因此也导致了 Hashtable在写入时会比较慢。
+   3. LinkedHashMap是HashMap的一个子类，保存了记录的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先
+   插入的.也可以在构造时用带参数，按照应用次数排序。在遍历的时候会比HashMap慢，不过有种情况例外，当HashMap容量很大，
+   实际数据较少时，遍历起来可能会比LinkedHashMap慢，因为LinkedHashMap的遍历速度只和实际数据有关，和容量无关，
+   而HashMap的遍历速度和他的容量有关。
+   4. TreeMap实现SortMap接口，能够把它保存的记录根据键排序,默认是按键值的升序排序，也可以指定排序的比较器，当用Iterator
+   遍历TreeMap时，得到的记录是排过序的。
    - **常见情况** </br>
 	一般情况下，我们用的最多的是HashMap,在Map中插入、删除和定位元素，HashMap是最好的选择。但如果您要按自然顺序或自定义顺序遍历键，那么TreeMap会更好。如果需要输出的顺序和输入的相同,那么用LinkedHashMap可以实现，它还可以按读取顺序来排列。
 		- **HashMap**是一个最常用的Map，它根据键的hashCode值存储数据，根据键可以直接获取它的值，具有很快的访问速度。HashMap最多只允许一条记录的键为NULL，允许多条记录的值为NULL。HashMap不支持线程同步，即任一时刻可以有多个线程同时写HashMap，可能会导致数据的不一致性。如果需要同步，可以用Collections的synchronizedMap方法使HashMap具有同步的能力。

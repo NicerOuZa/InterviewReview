@@ -68,6 +68,7 @@
 3. 执行事务——exec
 4. 取消事务，放弃队列运行——discard
 报告错误（即语法错误）或是discard时才会事务回滚
+### 和Mysql的事务的比较
 
 ## 8. Redis中6种数据淘汰机制
 1. volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰
